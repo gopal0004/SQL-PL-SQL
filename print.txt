@@ -1,0 +1,531 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Name   :Gopal Bera
+Roll No:15
+Subject:Relational Database Management System
+course :MCA-1
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+create database practice;
+use practice;
+
+create table client_master(
+client_no varchar(6) primary key,
+name varchar(20) not null,
+address1 varchar(30),
+address2 varchar(30),
+city varchar(15),
+pincode int(8),
+state varchar(15),
+bal_due decimal(10,2),
+check(client_no like "c%"));
+
+create table product_master (
+	Product_no varchar(6),
+    Description varchar(15) NOT NULL,
+    Profile_percent float(4,2)NOT NULL,
+    Unit_measure varchar(10)NOT NULL,
+    Qty_on_hand numeric(8) NOT NULL,
+    Recorder_lvl numeric(8)NOT NULL,
+	Sell_price numeric(8,2)NOT NULL,
+    Cost_price numeric(8,2)NOT NULL,
+    primary key (Product_no),
+    check (Product_no like 'P%'),
+    check (Sell_price > 0) ,
+    check (Cost_price > 0)
+);
+
+CREATE TABLE salesman_master (
+    salesman_no varchar(6) ,
+    Salesman_name varchar(20) NOT NULL,
+    Address1 varchar(30) NOT NULL,
+    Address2 varchar(30),
+    City varchar(20),
+    Pincode varchar(8),
+    State varchar(20),
+    Sal_amt numeric(8, 2) NOT NULL,
+    Tgt_to_get numeric(6, 2) NOT NULL,
+    Ytd_sales numeric(6, 2) NOT NULL,
+    Remarks varchar(60) ,
+    primary key (salesman_no) ,
+    check (salesman_no like 'S%'),
+    CHECK (Sal_amt > 0),
+    CHECK (Tgt_to_get > 0)
+);
+
+
+
+create table sale_order(
+order_no varchar(6)  primary key,
+order_date date,
+client_no varchar(6),
+dely_addr varchar(25),
+salesman_no varchar(6),
+dely_type char(1) default "F",
+billed_yn char(1),
+dely_date date,
+order_status varchar(10),
+check(order_no like "O%"),
+foreign key(client_no) references client_master(client_no),
+foreign key(salesman_no) references salesman_master(salesman_no),
+check(dely_type="P" or dely_type="F"),
+check(order_status="In Process" or order_status="Fulfilled" or order_status="Back Order" or order_status="Cancelled"),
+check(dely_date>=order_date));
+
+create table sale_order_details
+(
+	order_no varchar(6),
+    product_no varchar(6),
+    qty_ordered numeric(8),
+    qty_disp numeric(8),
+    product_rate numeric(10,2),
+    primary key(order_no,product_no),
+    foreign key(order_no) references sale_order(order_no),
+    foreign key(product_no)  references product_master(product_no)
+);
+
+
+INSERT INTO client_master (Client_No, Name, City, PinCode, State, Bal_due)
+VALUES
+('C01', 'Ivan Bayross', 'Bombay', 400054, 'Maharashtra', 15000),
+('C02', 'Vandana Saitwal', 'Madras', 780001, 'Tamil Nadu', 0),
+('C03', 'Pramada Jaguste', 'Bombay', 400057, 'Maharashtra', 5000),
+('C04', 'Basu Navindgi', 'Bombay', 400056, 'Maharashtra', 0),
+('C05', 'Ravi Sreedharan', 'Delhi', 100001, 'Delhi', 2000),
+('C06', 'Rukmini', 'Bombay', 400050, 'Maharashtra', 0);
+
+
+
+    INSERT INTO product_master VALUES
+	('P00001', '1.44 Floppies', 5.00, 'Piece', 100, 2, 525.00, 500.00),
+	('P03453', 'monitors', 6.00, 'Piece', 10, 20, 12000.00, 11280.00),
+	('P06734', 'mouse', 5.00, 'Piece', 20, 3, 1050.00, 1000.00),
+	('P07865', '1.22 Floppies', 5.00, 'Piece', 100, 5, 525.00, 500.00),
+	('P07868', 'keyboards', 2.00, 'Piece', 10, 20, 3150.00, 3050.00),
+	('P07885', 'CD Drive', 2.50, 'Piece', 10, 3, 5250.00, 5100.00),
+	('P07965', '540 HHD', 4.00, 'Piece', 10, 3, 8400.00, 8000.00),
+	('P07975', '1.44 Drive', 5.00, 'Piece', 10, 3, 1050.00, 1000.00),
+	('P08865', '1.22 Drive', 5.00, 'Piece', 2, 3, 1050.00, 1000.00);
+    
+    
+    INSERT INTO salesman_master (Salesman_no, Salesman_name, Address1, Address2, City, Pincode, State, Sal_amt, Tgt_to_get, Ytd_sales, Remarks)
+	VALUES
+	('S01', 'Kiran', 'A/14', 'Worli', 'Bombay', '400002', 'Maharashtra', 3000, 100, 50, 'Good'),
+	('S02', 'Manish', '65', 'Nariman', 'Bombay', '400001', 'Maharashtra', 3000, 200, 100, 'Good'),
+	('S03', 'Ravi', 'P-7', 'Bandra', 'Bombay', '400032', 'Maharashtra', 3000, 200, 100, 'Good'),
+	('S04', 'Aashish', 'A/5', 'Juhu', 'Bombay', '400044', 'Maharashtra', 3500, 200, 150, 'Good');
+
+
+
+INSERT INTO  sale_order 
+		(order_no, order_date, Client_no, Dely_type, Billed_yn, Salesman_no, Dely_date, Order_status)
+			VALUES
+		('O19001', '1996-01-12', 'C01', 'F', 'N', 'S01', '1996-01-20', "In Process"),
+		('O19002', '1996-01-25', 'C02', 'P', 'N', 'S02', '1996-01-27', "Cancelled"),
+		('O46865', '1996-02-18', 'C03', 'F', 'Y', 'S03', '1996-02-20', "Fulfilled"),
+		('O19003', '1996-04-03', 'C01', 'F', 'Y', 'S01', '1996-04-07', "Fulfilled"),
+		('O46866', '1996-05-20', 'C04', 'P', 'N', 'S02', '1996-05-22', "Cancelled"),  
+		('O19008', '1996-05-24', 'C05', 'F', 'N', 'S04', '1996-05-26', "In Process");
+        
+        
+          INSERT INTO sale_order_details VALUES
+('O19001', 'P00001', 4, 4, 525),
+('O19001', 'P07965', 2, 1, 8400),
+('O19001', 'P07885', 2, 1, 5250),
+('O19002', 'P00001', 10, 0, 525),
+('O46865', 'P07868', 3, 3, 3150),
+('O46865', 'P07885', 3, 1, 5250),
+('O46865', 'P00001', 10, 10, 525),
+('O46865', 'P03453', 4, 4, 1050),
+('O46865', 'P06734', 1, 1, 12000),
+('O19003', 'P07965', 1, 0, 8400),
+('O19003', 'P07975', 1, 0, 1050),
+('O46866', 'P00001', 10, 5, 525),
+('O19008', 'P07975', 5, 3, 1050);
+
+==================================================================================================================
+QUERIES on computation on table data
+==================================================================================================================
+(A)-->Find the name of all clients having ‘a’ as the second letter in their names
+ 
+query--> select * from client_master where name like '_a%';
+
+C02	Vandana Saitwal			Madras	780001	Tamil Nadu	0.00
+C04	Basu Navindgi			Bombay	400056	Maharashtra	0.00
+C05	Ravi Sreedharan			Delhi	100001	Delhi	2000.00
+							
+b) Find out the clients who stay in a city whose second letter is ‘a’.
+--> select * from client_master where city like '_a%';
+
+C02	Vandana Saitwal			Madras	780001	Tamil Nadu	0.00
+							
+c) Find the list of all client who stay in ‘Bombay’ or ‘Delhi’.
+select * from client_master where city like 'bombay' or city like 'delhi';
+
+C01	Ivan Bayross			Bombay	400054	Maharashtra	15000.00
+C03	Pramada Jaguste			Bombay	400057	Maharashtra	5000.00
+C04	Basu Navindgi			Bombay	400056	Maharashtra	0.00
+C05	Ravi Sreedharan			Delhi	100001	Delhi	2000.00
+C06	Rukmini				Bombay	400050	Maharashtra	0.00
+							
+							
+							
+d) Print the list of client whose bal_due is greater then value 10000.
+select * from client_master where bal_due > 10000;
+
+C01	Ivan Bayross			Bombay	400054	Maharashtra	15000.00
+
+e)Print the information from sales_oeder table for order placed in the month of January.
+select * from sale_order where monthname(order_date) like 'january';
+
+O19001	1996-01-12	C01		S01	F	N	1996-01-20	In Process
+O19002	1996-01-25	C02		S02	P	N	1996-01-27	Cancelled
+								
+f) Display the order information for client_no ‘C00001’ and ‘C00002’.
+select * from client_master where client_no like 'C01' or client_no like 'C02';
+
+C01	Ivan Bayross			Bombay	400054	Maharashtra	15000.00
+C02	Vandana Saitwal			Madras	780001	Tamil Nadu	0.00
+							
+g) Find products whose selling price is greater than 2000 and less than or equal to 5000.
+select * from product_master where sell_price > 2000 and sell_price <= 5000;
+
+P07868	keyboards	2.00	Piece	10	20	3150.00	3050.00
+							
+h) Find products whose selling price is more than 1500. Calculate a new selling price as, original selling price * .15. Rename the new column in the above query as new_price.
+select sell_price*1.5 'new_price',description from product_master where sell_price > 1500;
+
+18000.000	monitors
+4725.000	keyboards
+7875.000	CD Drive
+12600.000	540 HHD
+
+
+i) List the names, city and state of clients who r not in the state of ‘Maharastra’.
+select name,city,state from client_master where state not like 'maharashtra%';
+
+Vandana Saitwal	Madras	Tamil Nadu
+Ravi Sreedharan	Delhi	Delhi
+
+j) Count the total number of orders.
+select count(order_no) from sale_order;
+
+	count(order_no)
+	6
+
+k) Calculate the average price of all the products.
+select avg(sell_price) from product_master;
+
+	avg(sell_price)
+	3666.666667
+
+l) Determine the maximum and minimum product prices. Rename the output as max_price and min_price respectively.
+select min(sell_price)'min_price', max(sell_price)'max_price' from product_master;
+
+	min_price	max_price
+	525.00		12000.00
+
+m) Count the number of products having price greater than or equal to 1500.
+select count(product_no)  from product_master where sell_price >= 1500;
+
+	count(product_no)
+	4
+
+n) Find all the products whose qty_no_nahd is less than recorder level.
+select * from product_master where Qty_on_hand < Recorder_lvl;
+
+Product_no	Description	Profile_percent	Unit_measure	Qty_on_hand	Recorder_lvl 	Sell_price		Cost_price
+P03453		monitors	6.00		Piece		10		20		12000.00		11280.00
+P07868		keyboards	2.00		Piece		10		20		3150.00			3050.00
+P08865		1.22 Drive	5.00		Piece		2		3		1050.00			1000.00
+								
+								
+							
+============================================================================================================================================================
+Queries on Data Manipulation
+============================================================================================================================================================
+a) Display the order number and day on which clients placed their order.
+select day(order_date)'day',order_no from sale_order;
+
+	day	order_no
+	12	O19001
+	25	O19002
+	3	O19003
+	24	O19008
+	18	O46865
+	20	O46866
+
+b) Display the month (in alphabets) and date when the order must be delivered.
+select monthname(dely_date),date(dely_date) from sale_order;
+
+	monthname(dely_date)	date(dely_date)
+	January			1996-01-20
+	January			1996-01-27
+	April			1996-04-07
+	May			1996-05-26
+	February		1996-02-20
+	May			1996-05-22
+c) Display the order_date in the format ‘DD-Month-yy’. e.g. 12-February-96.
+select date_format(order_date,'%d-%b-%y') 'formate'from sale_order;
+
+	formate
+	12-Jan-96
+	25-Jan-96
+	03-Apr-96
+	24-May-96
+	18-Feb-96
+	20-May-96
+d) Find the date, 15 days after today’s date.
+select  adddate(curdate(),15)'new_date';
+
+	new_date
+	2023-12-18
+
+e) Find the number of days elapsed between today’s date and the delivery date of the orders placed by the clients.
+select datediff(dely_date,order_date)'elapsed' from sale_order;
+
+	elapsed
+	8
+	2
+	4
+	2
+	2
+	2
+============================================================================================================================================================
+Queries on using Group by and having
+============================================================================================================================================================
+a) Print the description and total qty sold for each product.
+select description,sum(sod.qty_ordered)'total' from product_master p,sale_order_details sod 
+where p.product_no=sod.product_no group by description;
+
+	description	total
+	1.44 Drive	6
+	1.44 Floppies	34
+	540 HHD	3
+	CD Drive	5
+	keyboards	3
+	monitors	4
+	mouse		1
+
+b) Find the value of each product sold.
+
+ select sum(pm.sell_price),pm.description from sale_order_details as sod,product_master as pm where 
+ sod.product_no=pm.product_no  group by sod.product_no;
+
+	sum(pm.sell_price)	description
+	2100.00	1.44 		Floppies
+	12000.00		monitors
+	1050.00			mouse
+	3150.00			keyboards
+	10500.00		CD Drive
+	16800.00		540 HHD
+	2100.00			1.44 Drive
+
+c) Calculate the average qty sold for each client that has a maximum order value of 15000.00.
+
+ 		select cm.name, avg(sod.qty_ordered) from sale_order_details
+ 		as sod,sale_order as so,
+ 		client_master as cm where sod.order_no=so.order_no and so.client_no=cm.client_no
+ 		group by cm.client_no having sum(sod.product_rate)>15000;
+	
+	name		avg(sod.qty_ordered)
+	Ivan Bayross	2.0000
+	Pramada Jaguste	4.2000
+
+
+d) Find out the sum total of all the billed orders for the month of January.
+
+ select sum(sod.product_rate),so.billed_yn,so.dely_date from sale_order_details as sod, sale_order as so
+ where sod.order_no=so.order_no group by so.order_no having monthname(so.dely_date) like 'january%';
+
+	sum(sod.product_rate)	billed_yn	dely_date
+	14175.00		N		1996-01-20
+	525.00			N		1996-01-27
+
+============================================================================================================================================================
+Queries on join and correltion
+============================================================================================================================================================
+
+a) Find out the products, which have been sold to ‘Ivan Bayross’.
+
+	select distinct description from sale_order_details 
+ 	as sod,sale_order as so,client_master as cm,product_master as pm where sod.order_no=so.order_no 
+ 	and sod.product_no=pm.product_no and so.client_no=cm.client_no and cm.name="ivan bayross";
+
+	description
+	1.44 Floppies
+	CD Drive
+	540 HHD
+	1.44 Drive
+
+b) Find out the products and their quantities that will have to be delivered in the current month.
+
+ select description,Qty_on_hand from sale_order_details as sod,sale_order as so,product_master as pm where sod.order_no=so.order_no
+ and sod.product_no=pm.product_no and month(so.dely_date)=month(now());
+
+
+
+c) Find the product_no and description of constantly sold i.e. rapidly moving products.
+
+	select s.product_no,p.description 
+	from sale_order_details as s,sale_order as o,product_master as  p
+	where s.Order_no=o.Order_no and s.product_no=p.product_no 
+	group by s.product_no 
+	having (sum(s.qty_ordered)/ (max(o.Order_date)-min(o.Order_date)))>0.08;
+
+	product_no	description
+	P00001	1.44 Floppies
+
+d) Find the name of clients who have purchase ‘CD Drive’.
+
+	select cm.name from sale_order_details as sod,sale_order as so,client_master as cm,product_master as pm 
+	where sod.order_no=so.order_no and sod.product_no=pm.product_no and 
+	so.client_no=cm.client_no and pm.description="cd drive";
+
+	name
+	Ivan Bayross
+	Pramada Jaguste
+
+e) List the product_no and order_no of customers having qty_ordered less than 5 from the sales_order_details table        for the product ‘1.44 Floppies’.
+
+ select sod.order_no,sod.product_no from sale_order_details 
+ as sod,sale_order as so,client_master as cm,product_master as pm
+ where sod.order_no=so.order_no and sod.product_no=pm.product_no and so.client_no=cm.client_no 
+ and pm.description="1.44 floppies" and sod.qty_ordered<5;
+
+	order_no	product_no
+	O19001		P00001
+
+f) Find the products and their quantities for the orders placed by ‘lvan Bayross’ and ‘Vandana Saitwal’.
+
+select sod.product_no,sod.qty_ordered from sale_order_details as sod,sale_order 
+as so,client_master as cm,product_master as pm 
+where sod.order_no=so.order_no and so.client_no=cm.client_no 
+and sod.product_no=pm.product_no and cm.name in ("ivan bayross","Vandana Saitwal");
+
+	product_no	qty_ordered
+	P00001		4
+	P07885		2
+	P07965		2
+	P07965		1
+	P07975		1
+	P00001		10
+
+g) Find the products and their quantities for the orders placed by client_no ‘C00001’ and ‘C00002’.
+
+select sod.product_no,sod.qty_ordered from sale_order_details as 
+sod,sale_order as so,client_master as cm,product_master as pm 
+where sod.order_no=so.order_no and so.client_no=cm.client_no 
+and sod.product_no=pm.product_no and cm.client_no in ("C01","C02");
+
+	product_no	qty_ordered
+	P00001		4
+	P07885		2
+	P07965		2
+	P07965		1
+	P07975		1
+	P00001		10
+
+============================================================================================================================================================
+Queries on Sub-queries
+============================================================================================================================================================
+a) Find the product_no and description of non-moving products i.e. products not being sold.
+
+	select product_no,description from product_master where  Product_no  not in
+ 	(select Product_no from sale_order_details);
+
+	product_no	description
+	P07865		1.22 Floppies
+	P08865		1.22 Drive
+
+b) Find the customer name, address1, address2, city and pin code for the client who has placed order no ‘O19001’.
+
+	select name,address1,address2,city,pincode from client_master 
+	where  client_no in (select client_no from sale_order where order_no = 'O19001' );
+
+	name		address1	address2	city	pincode
+	Ivan Bayross					Bombay	400054
+
+
+c) Find the client names who have placed orders before the month of May’96.
+
+select name from client_master where client_no in (select client_no from sale_order 
+where date(order_date) < '1996-5-01');
+
+	name
+	Ivan Bayross
+	Vandana Saitwal
+	Pramada Jaguste
+
+d) Find out if the product ‘1.44 Drive’ has been ordered by any client and print the clint_no, name to whom it was sold.
+
+
+select client_no,name from client_master where client_no in(select client_no 
+from sale_order where order_no in (select order_no from sale_order_details
+where product_no in (select distinct product_no from product_master where description="1.44 drive")));
+
+	client_no	name
+	C01		Ivan Bayross
+	C05		Ravi Sreedharan
+		
+
+e) Find the names of clients who have placed orders worth Rs.10000 or more.
+
+select name from client_master where client_no in (select client_no from sale_order where order_no in
+(select order_no from sale_order_details where product_rate>10000 ));
+
+	name
+	Pramada Jaguste
+
+============================================================================================================================================================
+Queries on Constructing Sentences with data:
+============================================================================================================================================================
+a) Print information from product_master, sales_order_detail tables in the following format for all the records:
+   {Description} worth Rs. {total sales for the product} was sold.
+
+	select concat(pm.description ,'worth rs',sum(product_rate * sod.qty_disp),' was sold ')
+	from product_master as pm, 
+	sale_order_details as sod where pm.Product_no=sod.product_no group by pm.Description;
+
+	concat(pm.description ,'worth rs',sum(product_rate * sod.qty_disp),' was sold ')
+	1.44 Floppiesworth rs9975.00 was sold 
+	CD Driveworth rs10500.00 was sold 
+	540 HHDworth rs8400.00 was sold 
+	1.44 Driveworth rs3150.00 was sold 
+	monitorsworth rs4200.00 was sold 
+	mouseworth rs12000.00 was sold 
+	keyboardsworth rs9450.00 was sold 
+
+b) Print information from product_master, sales_order_detail tables in the following format for all the records:
+   {Description} worth Rs. {total sales for the product} was ordered in the month of {order_date in month format}.
+
+select concat(pm.description,' worth rs ',sum(sod.product_rate * sod.qty_disp),'was 
+ ordered in thr month of ') 
+ from product_master as pm,sale_order as so,
+ sale_order_details as sod where sod.product_no=pm.Product_no and sod.order_no=so.order_no group by pm.description;
+
+	concat(pm.description,' worth rs ',sum(sod.product_rate * sod.qty_disp),'was 
+ ordered in thr month of ')
+	1.44 Floppies worth rs 9975.00was ordered in thr month of 
+	CD Drive worth rs 10500.00was ordered in thr month of 
+	540 HHD worth rs 8400.00was ordered in thr month of 
+	1.44 Drive worth rs 3150.00was ordered in thr month of 
+	monitors worth rs 4200.00was ordered in thr month of 
+	mouse worth rs 12000.00was ordered in thr month of 
+	keyboards worth rs 9450.00was ordered in thr month of 
+
+
+c) Print information from client_master, product_master, sales_order tables in the following format for all the records:
+   {cust_name} has placed order {order_no} on {order_date}.
+
+	 select concat(cm.name, ' has placed order ' , so.order_no, ' order no ', so.order_date, 'order date ')
+ 	from client_master as cm,sale_order as so where cm.client_no=so.client_no ;
+
+	concat(cm.name, ' has placed order ' , so.order_no, ' order no ', so.order_date, 'order date ')
+	Ivan Bayross has placed order O19001 order no 1996-01-12order date 
+	Vandana Saitwal has placed order O19002 order no 1996-01-25order date 
+	Ivan Bayross has placed order O19003 order no 1996-04-03order date 
+	Ravi Sreedharan has placed order O19008 order no 1996-05-24order date 
+	Pramada Jaguste has placed order O46865 order no 1996-02-18order date 
+	Basu Navindgi has placed order O46866 order no 1996-05-20order date 
